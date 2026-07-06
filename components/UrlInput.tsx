@@ -5,13 +5,11 @@ import { useRouter } from "next/navigation";
 
 type UrlInputProps = {
   initialValue?: string;
-  buttonLabel?: string;
 };
 
-export function UrlInput({ initialValue = "", buttonLabel = "Fetch" }: UrlInputProps) {
+export function UrlInput({ initialValue = "" }: UrlInputProps) {
   const router = useRouter();
   const [value, setValue] = useState(initialValue);
-  const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -20,38 +18,31 @@ export function UrlInput({ initialValue = "", buttonLabel = "Fetch" }: UrlInputP
     const nextValue = value.trim();
 
     if (!nextValue) {
-      setError("Enter a public API URL first.");
       return;
     }
 
-    setError("");
     startTransition(() => {
       router.push(toViewerPath(nextValue));
     });
   }
 
   return (
-    <section className="panel" aria-label="URL input">
-      <form className="row" onSubmit={handleSubmit}>
-        <label className="sr-only" htmlFor="api-url">
-          API URL
-        </label>
+    <section className="url-panel" aria-label="URL input">
+      <form className="url-form" onSubmit={handleSubmit}>
         <input
-          id="api-url"
           className="input"
-          placeholder="api.example.com/users?limit=10"
+          placeholder="https://api.example.com/users?limit=10"
           value={value}
           onChange={(event) => setValue(event.target.value)}
+          aria-label="API endpoint"
           autoCapitalize="none"
           autoComplete="url"
           autoCorrect="off"
+          disabled={isPending}
           inputMode="url"
+          spellCheck={false}
         />
-        <button className="button" type="submit" disabled={isPending}>
-          {isPending ? "Generating..." : buttonLabel}
-        </button>
       </form>
-      {error ? <p className="form-error">{error}</p> : null}
     </section>
   );
 }

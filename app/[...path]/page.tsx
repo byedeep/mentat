@@ -45,22 +45,22 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
   const schema = result ? inferJsonSchema(result.data) : undefined;
 
   return (
-    <main className="shell">
-      <section className="hero">
-        <p className="eyebrow">API Schema</p>
-        <h1>{error ? "Could not fetch that API." : "Generated API schema."}</h1>
-        <p className="lede">Target: {displayUrl}</p>
-      </section>
-
-      <UrlInput initialValue={displayUrl} buttonLabel="Generate another" key={displayUrl} />
+    <main className="shell results-shell">
+      <UrlInput initialValue={displayUrl} key={displayUrl} />
       {error ? (
-        <section className="panel" aria-label="Request error">
-          <strong>{error.status}</strong>
-          <p className="lede">{error.message}</p>
+        <section className="panel notice-panel" aria-label="Request error">
+          <span className="notice-dot" aria-hidden="true" />
+          <div>
+            <p className="section-label">Request failed</p>
+            <h2>{error.status}</h2>
+            <p className="panel-copy">{error.message}</p>
+          </div>
         </section>
       ) : null}
-      {schema ? <SchemaGenerator schema={schema} key={result?.meta.requestedUrl} /> : null}
-      <JsonViewer requestedUrl={displayUrl} result={result} error={error} />
+      <div className="result-grid">
+        {schema ? <SchemaGenerator schema={schema} key={result?.meta.requestedUrl} /> : null}
+        <JsonViewer requestedUrl={displayUrl} result={result} error={error} />
+      </div>
     </main>
   );
 }

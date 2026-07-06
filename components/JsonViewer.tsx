@@ -17,6 +17,7 @@ type JsonViewerProps = {
 
 export function JsonViewer({ requestedUrl = "https://api.example.com/users", result, error }: JsonViewerProps) {
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
+  const isError = Boolean(error);
   const payload = error
     ? {
         error: error.message,
@@ -43,21 +44,24 @@ export function JsonViewer({ requestedUrl = "https://api.example.com/users", res
   }
 
   return (
-    <section className="panel json-panel" aria-label="JSON viewer">
+    <section className={`panel json-panel${isError ? " is-error" : ""}`} aria-label="JSON viewer">
       <div className="panel-header">
         <div>
-          <p className="section-label">Response sample</p>
+          <p className="section-label">Raw response</p>
+          <h2>{isError ? "Fetch details" : "Response sample"}</h2>
           <div className="meta-row" aria-label="Response metadata">
-            <span>{result ? `${result.meta.status}` : error ? `${error.status}` : "Ready"}</span>
+            <span className={`status-pill ${isError ? "error" : "success"}`}>
+              {result ? `${result.meta.status}` : error ? `${error.status}` : "Ready"}
+            </span>
             {result ? <span>{result.meta.timeMs}ms</span> : null}
             {result?.meta.contentType ? <span>{result.meta.contentType}</span> : null}
           </div>
         </div>
-        <button className="button secondary" type="button" onClick={handleCopy}>
+        <button className="button secondary" type="button" onClick={handleCopy} aria-live="polite">
           {copyStatus === "copied" ? "Copied" : copyStatus === "failed" ? "Copy failed" : "Copy JSON"}
         </button>
       </div>
-      <pre className="json-code">
+      <pre className="json-code" tabIndex={0}>
         <code>{highlightJson(json)}</code>
       </pre>
     </section>

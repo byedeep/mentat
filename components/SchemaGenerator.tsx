@@ -39,50 +39,55 @@ export function SchemaGenerator({ schema }: SchemaGeneratorProps) {
   }
 
   return (
-    <section className="panel schema-panel" aria-label="Schema and model generator">
-      <div className="panel-header">
-        <div>
-          <p className="section-label">Inferred JSON Schema</p>
-          <p className="panel-copy">Generated from the fetched response sample.</p>
+    <section className="schema-stack" aria-label="Schema and model generator">
+      <article className="panel schema-panel">
+        <div className="panel-header">
+          <div>
+            <p className="section-label">Generated schema</p>
+            <h2>JSON Schema</h2>
+            <p className="panel-copy">Draft 2020-12 schema inferred from the fetched response sample.</p>
+          </div>
+          <button className="button secondary" type="button" onClick={copySchema} aria-live="polite">
+            {schemaCopyStatus === "copied" ? "Copied" : schemaCopyStatus === "failed" ? "Copy failed" : "Copy schema"}
+          </button>
         </div>
-        <button className="button secondary" type="button" onClick={copySchema}>
-          {schemaCopyStatus === "copied" ? "Copied" : schemaCopyStatus === "failed" ? "Copy failed" : "Copy schema"}
-        </button>
-      </div>
 
-      <pre className="json-code schema-code">
-        <code>{schemaJson}</code>
-      </pre>
+        <pre className="json-code schema-code" tabIndex={0}>
+          <code>{schemaJson}</code>
+        </pre>
+      </article>
 
-      <div className="model-tools">
-        <div className="row">
-          <label className="sr-only" htmlFor="model-language">
-            Model language
-          </label>
-          <select
-            id="model-language"
-            className="select"
-            value={language}
-            onChange={(event) => {
-              setLanguage(event.target.value as ModelLanguage);
-              setCodeCopyStatus("idle");
-            }}
-          >
-            {MODEL_LANGUAGES.map((option) => (
-              <option value={option.value} key={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <button className="button secondary" type="button" onClick={copyCode}>
+      <article className="panel model-panel">
+        <div className="model-toolbar">
+          <div className="field">
+            <label className="field-label" htmlFor="model-language">
+              Model language
+            </label>
+            <select
+              id="model-language"
+              className="select"
+              value={language}
+              onChange={(event) => {
+                setLanguage(event.target.value as ModelLanguage);
+                setCodeCopyStatus("idle");
+              }}
+            >
+              {MODEL_LANGUAGES.map((option) => (
+                <option value={option.value} key={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button className="button secondary" type="button" onClick={copyCode} aria-live="polite">
             {codeCopyStatus === "copied" ? "Copied" : codeCopyStatus === "failed" ? "Copy failed" : "Copy code"}
           </button>
         </div>
 
-        <pre className="model-code">
+        <pre className="model-code" tabIndex={0}>
           <code>{code}</code>
         </pre>
-      </div>
+      </article>
     </section>
   );
 }
