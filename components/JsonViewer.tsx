@@ -46,7 +46,7 @@ export function JsonViewer({ requestedUrl = "https://api.example.com/users", res
     <section className="panel json-panel" aria-label="JSON viewer">
       <div className="panel-header">
         <div>
-          <p className="section-label">Response</p>
+          <p className="section-label">Response sample</p>
           <div className="meta-row" aria-label="Response metadata">
             <span>{result ? `${result.meta.status}` : error ? `${error.status}` : "Ready"}</span>
             {result ? <span>{result.meta.timeMs}ms</span> : null}

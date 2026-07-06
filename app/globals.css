@@ -167,7 +167,7 @@ pre {
 }
 
 .json-code,
-.snippet-code {
+.model-code {
   padding: 16px;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -177,6 +177,10 @@ pre {
 
 .json-code {
   max-height: 68vh;
+}
+
+.schema-code {
+  max-height: 46vh;
 }
 
 .json-key {
@@ -199,8 +203,17 @@ pre {
   color: #fca5a5;
 }
 
-.snippet-block {
-  margin-top: 2px;
+.panel-copy {
+  margin: 0;
+  color: var(--muted);
+}
+
+.model-tools {
+  margin-top: 16px;
+}
+
+.model-code {
+  margin-top: 12px;
 }
 
 .sr-only {

@@ -4,12 +4,12 @@ export default function Home() {
   return (
     <main className="shell home-shell">
       <section className="hero">
-        <p className="eyebrow">API Peek</p>
-        <h1>Paste an API URL. Get readable JSON back.</h1>
-        <p className="lede">Enter any public GET endpoint. The response opens at the same URL path, already fetched server-side.</p>
+        <p className="eyebrow">API Schema</p>
+        <h1>Paste an API URL. Get a schema and structs.</h1>
+        <p className="lede">Enter any public GET endpoint. The response is fetched server-side, converted into JSON Schema, then turned into language models.</p>
       </section>
 
-      <UrlInput buttonLabel="Peek" />
+      <UrlInput buttonLabel="Generate schema" />
     </main>
   );
 }

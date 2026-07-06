@@ -48,7 +48,7 @@ export function UrlInput({ initialValue = "", buttonLabel = "Fetch" }: UrlInputP
           inputMode="url"
         />
         <button className="button" type="submit" disabled={isPending}>
-          {isPending ? "Fetching..." : buttonLabel}
+          {isPending ? "Generating..." : buttonLabel}
         </button>
       </form>
       {error ? <p className="form-error">{error}</p> : null}

@@ -1,11 +1,12 @@
 import { headers } from "next/headers";
 
 import { JsonViewer } from "@/components/JsonViewer";
-import { LanguageSelect } from "@/components/LanguageSelect";
+import { SchemaGenerator } from "@/components/SchemaGenerator";
 import { UrlInput } from "@/components/UrlInput";
 import { getClientIdentifier } from "@/lib/clientIp";
 import { fetchTarget, FetchTargetError, type FetchTargetResult } from "@/lib/fetchTarget";
 import { getRateLimitFromEnv, RateLimitExceededError } from "@/lib/rateLimit";
+import { inferJsonSchema } from "@/lib/schema";
 
 type ResultPageProps = {
   params: Promise<{ path: string[] }>;
@@ -32,8 +33,8 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
       target: requestedPath,
       rateLimit: {
         identifier: getClientIdentifier(requestHeaders),
-        limit: getRateLimitFromEnv("RATE_LIMIT_PROXY_PER_MINUTE", 20),
-        prefix: "proxy",
+        limit: getRateLimitFromEnv("RATE_LIMIT_SCHEMA_PER_MINUTE", 20),
+        prefix: "schema",
       },
     });
   } catch (caughtError) {
@@ -41,23 +42,24 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
   }
 
   const displayUrl = result?.meta.requestedUrl ?? requestedPath;
+  const schema = result ? inferJsonSchema(result.data) : undefined;
 
   return (
     <main className="shell">
       <section className="hero">
-        <p className="eyebrow">API Peek</p>
-        <h1>{error ? "Could not fetch that API." : "Fetched API response."}</h1>
+        <p className="eyebrow">API Schema</p>
+        <h1>{error ? "Could not fetch that API." : "Generated API schema."}</h1>
         <p className="lede">Target: {displayUrl}</p>
       </section>
 
-      <UrlInput initialValue={displayUrl} buttonLabel="Fetch another" key={displayUrl} />
-      {result ? <LanguageSelect url={result.meta.requestedUrl} key={result.meta.requestedUrl} /> : null}
+      <UrlInput initialValue={displayUrl} buttonLabel="Generate another" key={displayUrl} />
       {error ? (
         <section className="panel" aria-label="Request error">
           <strong>{error.status}</strong>
           <p className="lede">{error.message}</p>
         </section>
       ) : null}
+      {schema ? <SchemaGenerator schema={schema} key={result?.meta.requestedUrl} /> : null}
       <JsonViewer requestedUrl={displayUrl} result={result} error={error} />
     </main>
   );

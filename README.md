@@ -1,16 +1,18 @@
-# API Peek
+# API Schema
 
-API Peek is a small Next.js app for previewing public API responses and turning GET requests into copyable code snippets.
+API Schema is a small Next.js app for turning public API responses into JSON Schema and copyable language models.
 
-Paste a public API URL, fetch it server-side, view the response as formatted JSON, copy the payload, or generate a request snippet for curl, Python, JavaScript, Go, PHP, Java, Rust, and more.
+Paste a public API URL, fetch it server-side, infer a JSON Schema from the response payload, then generate TypeScript interfaces, Go structs, Rust structs, or Python dataclasses.
 
 ## Features
 
 - URL-to-viewer routing: open `/api.example.com/users` or `/https://api.example.com/users` directly.
 - Server-side fetching: result pages load with the response already populated.
-- JSON viewer: formatted output, syntax highlighting, metadata, and copy-to-clipboard.
-- Snippet generator: powered by `httpsnippet` for common HTTP clients.
+- JSON Schema inference: converts the fetched response sample into a Draft 2020-12 schema.
+- Model generator: emits TypeScript, Go, Rust, and Python data models from the inferred schema.
+- Response viewer: formatted output, syntax highlighting, metadata, and copy-to-clipboard.
 - Programmatic proxy API: fetch targets with `/api/proxy?url=...`.
+- Programmatic schema API: fetch targets and generate schemas with `/api/schema?url=...`.
 - Safety controls: GET-only requests, request timeout, SSRF guard, and per-IP rate limits.
 - Vercel-ready rate limiting: uses Vercel KV when configured, with an in-memory fallback for local development.
 
@@ -20,7 +22,6 @@ Paste a public API URL, fetch it server-side, view the response as formatted JSO
 - React
 - TypeScript
 - Vercel KV
-- HTTPSnippet
 
 ## Quick Start
 
@@ -43,7 +44,7 @@ http://localhost:3000/https://api.github.com/repos/vercel/next.js
 http://localhost:3000/api.github.com/repos/vercel/next.js
 ```
 
-If no protocol is provided, API Peek probes HTTPS first and falls back to HTTP when HTTPS is not reachable.
+If no protocol is provided, API Schema probes HTTPS first and falls back to HTTP when HTTPS is not reachable.
 
 ## Environment Variables
 
@@ -55,8 +56,8 @@ Copy `.env.example` to `.env.local` for local development.
 | `KV_REST_API_TOKEN` | No in dev, yes for production KV | None | Vercel KV REST token. |
 | `KV_URL` | No | None | Included for Vercel KV compatibility. |
 | `KV_REST_API_READ_ONLY_TOKEN` | No | None | Included for Vercel KV compatibility. |
-| `RATE_LIMIT_PROXY_PER_MINUTE` | No | `20` | Requests per minute for result pages and `/api/proxy`. |
-| `RATE_LIMIT_SNIPPET_PER_MINUTE` | No | `60` | Requests per minute for `/api/snippet`. |
+| `RATE_LIMIT_PROXY_PER_MINUTE` | No | `20` | Requests per minute for `/api/proxy`. |
+| `RATE_LIMIT_SCHEMA_PER_MINUTE` | No | `20` | Requests per minute for result pages and `/api/schema`. |
 
 When `KV_REST_API_URL` and `KV_REST_API_TOKEN` are missing, rate limits use an in-memory store. That is fine for local development, but production deployments should use Vercel KV or another shared store.
 
@@ -89,17 +90,25 @@ Successful responses use this shape:
 }
 ```
 
-### `POST /api/snippet`
+### `GET /api/schema`
 
-Generates a GET request snippet for a target URL.
+Fetches a public HTTP or HTTPS target and returns an inferred JSON Schema. Add `language` to include generated model code.
 
 ```bash
-curl "http://localhost:3000/api/snippet" \
-  -H "content-type: application/json" \
-  -d '{"url":"https://api.github.com/repos/vercel/next.js","language":"python"}'
+curl "http://localhost:3000/api/schema?url=https://api.github.com/repos/vercel/next.js&language=typescript"
 ```
 
-Supported built-in language values include `curl`, `python`, `javascript`, `js`, `node`, `node:axios`, `go`, `php`, `java`, and `rust`. Other `httpsnippet` target/client pairs can be requested as `target:client` when supported by the library.
+Successful responses include `meta`, `schema`, and optional `code` fields. Supported language values include `typescript`, `ts`, `go`, `golang`, `rust`, `rs`, `python`, and `py`.
+
+### `POST /api/schema`
+
+Accepts the same inputs as JSON:
+
+```bash
+curl "http://localhost:3000/api/schema" \
+  -H "content-type: application/json" \
+  -d '{"url":"https://api.github.com/repos/vercel/next.js","language":"go"}'
+```
 
 ## Security Model
 
@@ -123,18 +132,19 @@ npm run lint     # Run ESLint
 
 ```text
 app/
-  [...path]/page.tsx       Result page that fetches and renders the target response
+  [...path]/page.tsx       Result page that fetches and renders schema/model output
   api/proxy/route.ts       Programmatic JSON proxy endpoint
-  api/snippet/route.ts     Request snippet generation endpoint
+  api/schema/route.ts      Schema and model generation endpoint
   page.tsx                 Homepage URL input
 components/
   JsonViewer.tsx           Formatted response viewer
-  LanguageSelect.tsx       Snippet language picker
+  SchemaGenerator.tsx      Schema viewer and model language picker
   UrlInput.tsx             Shared target URL form
 lib/
   fetchTarget.ts           Shared fetch, timeout, parsing, and error logic
   rateLimit.ts             KV-backed rate limiter with memory fallback
   resolveProtocol.ts       HTTPS-first protocol resolution
+  schema.ts                JSON Schema inference and model code generation
   ssrfGuard.ts             Public-target validation
 ```
 
@@ -145,12 +155,13 @@ Deploy to Vercel like a standard Next.js app.
 1. Create a Vercel project for this repository.
 2. Add a Vercel KV database.
 3. Expose the KV environment variables to the project.
-4. Set `RATE_LIMIT_PROXY_PER_MINUTE` and `RATE_LIMIT_SNIPPET_PER_MINUTE` if the defaults are not appropriate.
-5. Deploy and test direct catch-all routes, query strings, and snippet generation.
+4. Set `RATE_LIMIT_PROXY_PER_MINUTE` and `RATE_LIMIT_SCHEMA_PER_MINUTE` if the defaults are not appropriate.
+5. Deploy and test direct catch-all routes, query strings, and schema generation.
 
 ## Limitations
 
 - Public GET endpoints only.
+- Schemas are inferred from one response sample, so fields not present in that response cannot be discovered.
 - No request body passthrough yet.
 - No custom header or auth passthrough yet.
 - Private networks and local services are intentionally blocked.

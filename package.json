@@ -1,5 +1,5 @@
 {
-  "name": "api-peek",
+  "name": "api-schema",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@vercel/kv": "latest",
-    "httpsnippet": "latest",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest"
