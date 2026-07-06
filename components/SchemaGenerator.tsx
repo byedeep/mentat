@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
+import { FullscreenButton } from "@/components/FullscreenButton";
 import { highlightJson, highlightModelCode } from "@/components/SyntaxHighlight";
 import {
   generateTypeDefinitions,
@@ -15,6 +16,8 @@ type SchemaGeneratorProps = {
 };
 
 export function SchemaGenerator({ schema }: SchemaGeneratorProps) {
+  const schemaPanelRef = useRef<HTMLElement | null>(null);
+  const modelPanelRef = useRef<HTMLElement | null>(null);
   const [language, setLanguage] = useState<ModelLanguage>("typescript");
   const [schemaCopyStatus, setSchemaCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
   const [codeCopyStatus, setCodeCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
@@ -41,23 +44,28 @@ export function SchemaGenerator({ schema }: SchemaGeneratorProps) {
 
   return (
     <section className="schema-stack" aria-label="Schema and model generator">
-      <article className="panel schema-panel">
+      <article ref={schemaPanelRef} className="panel schema-panel">
         <div className="panel-header">
           <div>
             <p className="section-label">Generated schema</p>
             <h2>JSON Schema</h2>
           </div>
-          <button className="button secondary" type="button" onClick={copySchema} aria-live="polite">
-            {schemaCopyStatus === "copied" ? "Copied" : schemaCopyStatus === "failed" ? "Copy failed" : "Copy schema"}
-          </button>
+          <div className="panel-actions">
+            <button className="button secondary" type="button" onClick={copySchema} aria-live="polite">
+              {schemaCopyStatus === "copied" ? "Copied" : schemaCopyStatus === "failed" ? "Copy failed" : "Copy schema"}
+            </button>
+          </div>
         </div>
 
-        <pre className="json-code schema-code" tabIndex={0}>
-          <code>{highlightJson(schemaJson)}</code>
-        </pre>
+        <div className="code-frame">
+          <FullscreenButton targetRef={schemaPanelRef} label="JSON Schema" />
+          <pre className="json-code schema-code" tabIndex={0}>
+            <code>{highlightJson(schemaJson)}</code>
+          </pre>
+        </div>
       </article>
 
-      <article className="panel model-panel">
+      <article ref={modelPanelRef} className="panel model-panel">
         <div className="model-toolbar">
           <div className="field">
             <label className="field-label" htmlFor="model-language">
@@ -79,14 +87,19 @@ export function SchemaGenerator({ schema }: SchemaGeneratorProps) {
               ))}
             </select>
           </div>
-          <button className="button secondary" type="button" onClick={copyCode} aria-live="polite">
-            {codeCopyStatus === "copied" ? "Copied" : codeCopyStatus === "failed" ? "Copy failed" : "Copy code"}
-          </button>
+          <div className="panel-actions">
+            <button className="button secondary" type="button" onClick={copyCode} aria-live="polite">
+              {codeCopyStatus === "copied" ? "Copied" : codeCopyStatus === "failed" ? "Copy failed" : "Copy code"}
+            </button>
+          </div>
         </div>
 
-        <pre className="model-code" tabIndex={0}>
-          <code>{highlightModelCode(code)}</code>
-        </pre>
+        <div className="code-frame">
+          <FullscreenButton targetRef={modelPanelRef} label="generated model" />
+          <pre className="model-code" tabIndex={0}>
+            <code>{highlightModelCode(code)}</code>
+          </pre>
+        </div>
       </article>
     </section>
   );

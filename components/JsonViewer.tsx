@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
+import { FullscreenButton } from "@/components/FullscreenButton";
 import { highlightJson } from "@/components/SyntaxHighlight";
 import type { FetchTargetResult } from "@/lib/fetchTarget";
 
@@ -16,6 +17,7 @@ type JsonViewerProps = {
 };
 
 export function JsonViewer({ requestedUrl = "https://api.example.com/users", result, error }: JsonViewerProps) {
+  const panelRef = useRef<HTMLElement | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
   const isError = Boolean(error);
   const payload = error
@@ -44,7 +46,7 @@ export function JsonViewer({ requestedUrl = "https://api.example.com/users", res
   }
 
   return (
-    <section className={`panel json-panel${isError ? " is-error" : ""}`} aria-label="JSON viewer">
+    <section ref={panelRef} className={`panel json-panel${isError ? " is-error" : ""}`} aria-label="JSON viewer">
       <div className="panel-header">
         <div>
           <p className="section-label">Raw response</p>
@@ -57,13 +59,18 @@ export function JsonViewer({ requestedUrl = "https://api.example.com/users", res
             {result?.meta.contentType ? <span>{result.meta.contentType}</span> : null}
           </div>
         </div>
-        <button className="button secondary" type="button" onClick={handleCopy} aria-live="polite">
-          {copyStatus === "copied" ? "Copied" : copyStatus === "failed" ? "Copy failed" : "Copy JSON"}
-        </button>
+        <div className="panel-actions">
+          <button className="button secondary" type="button" onClick={handleCopy} aria-live="polite">
+            {copyStatus === "copied" ? "Copied" : copyStatus === "failed" ? "Copy failed" : "Copy JSON"}
+          </button>
+        </div>
       </div>
-      <pre className="json-code" tabIndex={0}>
-        <code>{highlightJson(json)}</code>
-      </pre>
+      <div className="code-frame">
+        <FullscreenButton targetRef={panelRef} label="raw response" />
+        <pre className="json-code" tabIndex={0}>
+          <code>{highlightJson(json)}</code>
+        </pre>
+      </div>
     </section>
   );
 }
