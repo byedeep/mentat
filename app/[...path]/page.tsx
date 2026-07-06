@@ -64,9 +64,10 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
 }
 
 function buildTarget(path: string[], searchParams: Record<string, string | string[] | undefined>) {
+  const firstSegment = decodeProtocolSegment(path[0] ?? "");
   const targetPath =
-    path[0] === "http:" || path[0] === "https:"
-      ? `${path[0]}//${path.slice(1).join("/")}`
+    firstSegment === "http:" || firstSegment === "https:"
+      ? `${firstSegment}//${path.slice(1).join("/")}`
       : path.join("/");
   const query = new URLSearchParams();
 
@@ -83,6 +84,14 @@ function buildTarget(path: string[], searchParams: Record<string, string | strin
   const queryString = query.toString();
 
   return queryString ? `${targetPath}?${queryString}` : targetPath;
+}
+
+function decodeProtocolSegment(segment: string): string {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
 }
 
 function toPageError(error: unknown): PageError {
