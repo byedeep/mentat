@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { highlightJson, highlightModelCode } from "@/components/SyntaxHighlight";
 import {
   generateTypeDefinitions,
   MODEL_LANGUAGES,
@@ -45,7 +46,6 @@ export function SchemaGenerator({ schema }: SchemaGeneratorProps) {
           <div>
             <p className="section-label">Generated schema</p>
             <h2>JSON Schema</h2>
-            <p className="panel-copy">Draft 2020-12 schema inferred from the fetched response sample.</p>
           </div>
           <button className="button secondary" type="button" onClick={copySchema} aria-live="polite">
             {schemaCopyStatus === "copied" ? "Copied" : schemaCopyStatus === "failed" ? "Copy failed" : "Copy schema"}
@@ -53,7 +53,7 @@ export function SchemaGenerator({ schema }: SchemaGeneratorProps) {
         </div>
 
         <pre className="json-code schema-code" tabIndex={0}>
-          <code>{schemaJson}</code>
+          <code>{highlightJson(schemaJson)}</code>
         </pre>
       </article>
 
@@ -85,7 +85,7 @@ export function SchemaGenerator({ schema }: SchemaGeneratorProps) {
         </div>
 
         <pre className="model-code" tabIndex={0}>
-          <code>{code}</code>
+          <code>{highlightModelCode(code)}</code>
         </pre>
       </article>
     </section>

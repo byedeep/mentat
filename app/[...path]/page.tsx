@@ -46,7 +46,7 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
 
   return (
     <main className="shell results-shell">
-      <UrlInput initialValue={displayUrl} key={displayUrl} />
+      <UrlInput initialValue={displayUrl} buttonLabel="Generate another" key={displayUrl} />
       {error ? (
         <section className="panel notice-panel" aria-label="Request error">
           <span className="notice-dot" aria-hidden="true" />

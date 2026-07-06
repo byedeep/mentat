@@ -35,7 +35,7 @@ export default function Home() {
         </aside>
       </section>
 
-      <UrlInput />
+      <UrlInput buttonLabel="Generate schema" />
 
       <section className="home-grid" aria-label="Workflow">
         {workflow.map((item) => (

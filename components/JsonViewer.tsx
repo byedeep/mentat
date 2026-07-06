@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { ReactNode } from "react";
 
+import { highlightJson } from "@/components/SyntaxHighlight";
 import type { FetchTargetResult } from "@/lib/fetchTarget";
 
 type JsonViewerProps = {
@@ -66,51 +66,4 @@ export function JsonViewer({ requestedUrl = "https://api.example.com/users", res
       </pre>
     </section>
   );
-}
-
-function highlightJson(json: string): ReactNode[] {
-  const tokenPattern = /("(?:\\u[\da-fA-F]{4}|\\[^u]|[^\\"])*"\s*:?|\btrue\b|\bfalse\b|\bnull\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g;
-  const tokens: ReactNode[] = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-
-  while ((match = tokenPattern.exec(json)) !== null) {
-    if (match.index > lastIndex) {
-      tokens.push(json.slice(lastIndex, match.index));
-    }
-
-    const token = match[0];
-    tokens.push(
-      <span className={jsonTokenClassName(token)} key={`${match.index}-${token}`}>
-        {token}
-      </span>,
-    );
-    lastIndex = tokenPattern.lastIndex;
-  }
-
-  if (lastIndex < json.length) {
-    tokens.push(json.slice(lastIndex));
-  }
-
-  return tokens;
-}
-
-function jsonTokenClassName(token: string): string {
-  if (token.endsWith(":")) {
-    return "json-key";
-  }
-
-  if (token.startsWith('"')) {
-    return "json-string";
-  }
-
-  if (token === "true" || token === "false") {
-    return "json-boolean";
-  }
-
-  if (token === "null") {
-    return "json-null";
-  }
-
-  return "json-number";
 }

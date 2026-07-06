@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 
 type UrlInputProps = {
   initialValue?: string;
+  buttonLabel?: string;
 };
 
-export function UrlInput({ initialValue = "" }: UrlInputProps) {
+export function UrlInput({ initialValue = "", buttonLabel = "Fetch" }: UrlInputProps) {
   const router = useRouter();
   const [value, setValue] = useState(initialValue);
   const [isPending, startTransition] = useTransition();
@@ -42,6 +43,9 @@ export function UrlInput({ initialValue = "" }: UrlInputProps) {
           inputMode="url"
           spellCheck={false}
         />
+        <button className="button primary" type="submit" disabled={isPending}>
+          {isPending ? "Fetching..." : buttonLabel}
+        </button>
       </form>
     </section>
   );
