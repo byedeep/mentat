@@ -38,7 +38,7 @@ async function isReachable(target: URL): Promise<boolean> {
       signal: AbortSignal.timeout(PROTOCOL_PROBE_TIMEOUT_MS),
     });
 
-    return response.status < 500;
+    return response.status > 0;
   } catch {
     return false;
   }
